@@ -4,8 +4,8 @@
 
 ## Server
 ---
-- Dockerize
-- Use Node Framework
+- ~~Dockerize~~
+- ~~Use Node Framework~~
 - Basic CRUD functionality
 - Own Rolled Auth
 
