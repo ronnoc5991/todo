@@ -6,6 +6,8 @@
 ---
 - ~~Dockerize~~
 - ~~Use Node Framework~~
+- Typescript
+- Database
 - Basic CRUD functionality
 - Own Rolled Auth
 
