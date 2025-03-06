@@ -1,2 +1,6 @@
-node_modules/
+**/node_modules/**
+# We want to keep the node_modules directory
+# so that our local bind mounts work
+!**/node_modules/.gitkeep
+
 dist/
