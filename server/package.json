@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node ./dist/app.js",
-    "watch": "nodemon -e ts --exec 'npm run build && npm run start'"
+    "watch": "nodemon -e ts --exec 'npm run build && npm run start'",
+    "format": "prettier . --write"
   },
   "author": "",
   "license": "ISC",
@@ -18,6 +19,7 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "nodemon": "^3.1.9",
+    "prettier": "3.5.3",
     "typescript": "^5.8.2"
   }
 }
