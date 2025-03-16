@@ -1,7 +1,7 @@
 import connection from "../connection.js";
 
 async function createTodo(task: string) {
-  const [results] = await connection.query(
+  const [results] = await connection.execute(
     "INSERT INTO todos (task, is_done) VALUES (?, 0)",
     [task],
   );
@@ -9,19 +9,20 @@ async function createTodo(task: string) {
 }
 
 async function getAllTodos() {
-  const [results] = await connection.query("SELECT * FROM todos");
+  const [results] = await connection.execute("SELECT * FROM todos");
   return results;
 }
 
 async function getTodo(id: number) {
-  const [results] = await connection.query("SELECT * FROM todos WHERE id = ?", [
-    id,
-  ]);
+  const [results] = await connection.execute(
+    "SELECT * FROM todos WHERE id = ?",
+    [id],
+  );
   return results;
 }
 
 async function updateTodo(id: number, task: string, isDone: boolean) {
-  const [results] = await connection.query(
+  const [results] = await connection.execute(
     "UPDATE todos SET task = ?, is_done = ? WHERE id = ?",
     [task, isDone ? 1 : 0, id],
   );
@@ -29,10 +30,9 @@ async function updateTodo(id: number, task: string, isDone: boolean) {
 }
 
 async function deleteTodo(id: number) {
-  const [results] = await connection.query(
-    "DELETE FROM todos WHERE id = ?",
+  const [results] = await connection.execute("DELETE FROM todos WHERE id = ?", [
     id,
-  );
+  ]);
   return results;
 }
 
