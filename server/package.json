@@ -15,11 +15,13 @@
   "description": "",
   "dependencies": {
     "body-parser": "^1.20.3",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "mysql2": "^3.13.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
     "@types/express": "^5.0.0",
+    "@types/node": "^22.13.10",
     "eslint": "^9.21.0",
     "globals": "^16.0.0",
     "nodemon": "^3.1.9",
