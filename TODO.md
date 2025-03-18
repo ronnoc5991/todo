@@ -11,8 +11,11 @@
 - ~~Dockerize~~
 - ~~Use Node Framework~~
 - ~~Typescript~~
-- Database
-- Basic CRUD functionality
+- ~~Database~~
+- ~~Basic CRUD functionality~~
+- ~~Make startup rely on db! (wait for)~~
+- ~~Persist DB across containers (volumes)~~
+- Create DBs if they do not exist? (app crashing at moment because db does not exist)
 - Own Rolled Auth
 
 ## Client

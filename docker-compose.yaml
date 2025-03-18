@@ -20,6 +20,8 @@ services:
     env_file: ./.db.env
     networks:
       - backend
+    volumes:
+      - database-data:/var/lib/mysql
     healthcheck:
       test:
         [
@@ -46,3 +48,4 @@ volumes:
       type: none
       o: bind
       device: ./server/node_modules
+  database-data:
