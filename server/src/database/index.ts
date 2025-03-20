@@ -1,4 +1,4 @@
-import connection from "../connection.js";
+import connection from "./connection.js";
 
 async function createTodo(task: string) {
   const [results] = await connection.execute(
@@ -36,4 +36,4 @@ async function deleteTodo(id: number) {
   return results;
 }
 
-export { createTodo, getAllTodos, getTodo, updateTodo, deleteTodo };
+export default { createTodo, getAllTodos, getTodo, updateTodo, deleteTodo };

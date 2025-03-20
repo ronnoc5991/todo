@@ -1,73 +1,79 @@
-import express from "express";
-import bodyParser from "body-parser";
-import {
-  createTodo,
-  deleteTodo,
-  getAllTodos,
-  getTodo,
-  updateTodo,
-} from "../database/todos/index.js";
+import db from "../database/index.js";
+import type { Request, Response } from "express";
 
-const todosController = express.Router();
+type Controller = (req: Request, res: Response) => void;
 
-const jsonParser = bodyParser.json();
-
-todosController.post("/", jsonParser, async (req, res) => {
+const createTodo: Controller = async (req, res) => {
   const { task } = req.body;
   try {
-    const result = await createTodo(task);
+    const result = await db.createTodo(task);
     res.send(result);
   } catch (err) {
     console.log(err);
     res.send(500);
   }
-});
+};
 
-todosController.get("/", async (_, res) => {
+const getAllTodos: Controller = async (_, res) => {
   try {
-    const allTodos = await getAllTodos();
+    const allTodos = await db.getAllTodos();
     res.send(allTodos);
   } catch (err) {
     console.log(err);
     res.send(500);
   }
-});
+};
 
-todosController.get("/:todoId", async (req, res) => {
+const getTodoById: Controller = async (req, res) => {
+  if (!req.params.todoId) {
+    res.send(500);
+    return;
+  }
+
   const todoId = parseInt(req.params.todoId, 10);
 
   try {
-    const result = await getTodo(todoId);
+    const result = await db.getTodo(todoId);
     res.send(result);
   } catch (err) {
     console.log(err);
     res.send(500);
   }
-});
+};
 
-todosController.put("/:todoId", jsonParser, async (req, res) => {
+const updateTodoById: Controller = async (req, res) => {
+  if (!req.params.todoId) {
+    res.send(500);
+    return;
+  }
+
   const todoId = parseInt(req.params.todoId, 10);
   const { task, isDone } = req.body;
 
   try {
-    const result = await updateTodo(todoId, task, isDone);
+    const result = await db.updateTodo(todoId, task, isDone);
     res.send(result);
   } catch (err) {
     console.log(err);
     res.send(500);
   }
-});
+};
 
-todosController.delete("/:todoId", async (req, res) => {
+const deleteTodoById: Controller = async (req, res) => {
+  if (!req.params.todoId) {
+    res.send(500);
+    return;
+  }
+
   const todoId = parseInt(req.params.todoId, 10);
 
   try {
-    const result = await deleteTodo(todoId);
+    const result = await db.deleteTodo(todoId);
     res.send(result);
   } catch (err) {
     console.log(err);
     res.send(500);
   }
-});
+};
 
-export default todosController;
+export { getAllTodos, getTodoById, createTodo, updateTodoById, deleteTodoById };
