@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 
 import { tryCatch } from "../utils/tryCatch.js";
 import { Controller } from "./types.js";
+import HttpStatusCode from "../types/HttpStatusCode.js";
 
 // log in
 // log out
@@ -62,7 +63,7 @@ const createNewUser: Controller = async (req, res, next) => {
     return next(new Error("Unable to create user."));
   }
 
-  res.status(201).send();
+  res.status(HttpStatusCode.CREATED).send();
 };
 
 const logIn: Controller = async (req, res, next) => {
@@ -95,7 +96,7 @@ const logIn: Controller = async (req, res, next) => {
     return next(new Error("Log in failed. Email or password incorrect."));
   }
 
-  res.status(200).send("You know the password!");
+  res.status(HttpStatusCode.OK).send("You know the password!");
 };
 
 export default { createNewUser, logIn };

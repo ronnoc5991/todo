@@ -2,6 +2,7 @@ import db from "../models/index.js";
 import type { Request } from "express";
 import { tryCatch } from "../utils/tryCatch.js";
 import { Controller } from "./types.js";
+import HttpStatusCode from "../types/HttpStatusCode.js";
 
 const getTodoIdParam = (req: Request) => {
   if (!req.params.todoId) {
@@ -24,7 +25,7 @@ const createTodo: Controller = async (req, res, next) => {
     return next(new Error("Failed to create TODO"));
   }
 
-  res.status(201).send();
+  res.status(HttpStatusCode.CREATED).send();
 };
 
 const getAllTodos: Controller = async (_, res, next) => {
@@ -34,7 +35,7 @@ const getAllTodos: Controller = async (_, res, next) => {
     return next(error);
   }
 
-  res.send(allTodos);
+  res.status(HttpStatusCode.OK).send(allTodos);
 };
 
 const getTodoById: Controller = async (req, res, next) => {
@@ -51,11 +52,11 @@ const getTodoById: Controller = async (req, res, next) => {
   }
 
   if (todos.length === 0) {
-    res.status(404).send();
+    res.status(HttpStatusCode.NOT_FOUND).send();
     return;
   }
 
-  res.send(todos[0]);
+  res.status(HttpStatusCode.OK).send(todos[0]);
 };
 
 const updateTodoById: Controller = async (req, res, next) => {
@@ -76,11 +77,11 @@ const updateTodoById: Controller = async (req, res, next) => {
   }
 
   if (results.affectedRows === 0) {
-    res.status(404).send();
+    res.status(HttpStatusCode.NOT_FOUND).send();
     return;
   }
 
-  res.status(204).send();
+  res.status(HttpStatusCode.NO_CONTENT).send();
 };
 
 const deleteTodoById: Controller = async (req, res, next) => {
@@ -97,11 +98,11 @@ const deleteTodoById: Controller = async (req, res, next) => {
   }
 
   if (results.affectedRows === 0) {
-    res.status(404).send();
+    res.status(HttpStatusCode.NOT_FOUND).send();
     return;
   }
 
-  res.status(204).send();
+  res.status(HttpStatusCode.NO_CONTENT).send();
 };
 
 export { getAllTodos, getTodoById, createTodo, updateTodoById, deleteTodoById };
