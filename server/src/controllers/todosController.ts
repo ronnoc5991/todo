@@ -1,8 +1,7 @@
-import db from "../database/index.js";
-import type { Request, Response, NextFunction } from "express";
+import db from "../models/index.js";
+import type { Request } from "express";
 import { tryCatch } from "../utils/tryCatch.js";
-
-type Controller = (req: Request, res: Response, next: NextFunction) => void;
+import { Controller } from "./types.js";
 
 const getTodoIdParam = (req: Request) => {
   if (!req.params.todoId) {
@@ -15,7 +14,7 @@ const getTodoIdParam = (req: Request) => {
 
 const createTodo: Controller = async (req, res, next) => {
   const { task } = req.body;
-  const [result, error] = await tryCatch(db.createTodo(task));
+  const [result, error] = await tryCatch(db.todos.createTodo(task));
 
   if (error) {
     return next(error);
@@ -29,7 +28,7 @@ const createTodo: Controller = async (req, res, next) => {
 };
 
 const getAllTodos: Controller = async (_, res, next) => {
-  const [allTodos, error] = await tryCatch(db.getAllTodos());
+  const [allTodos, error] = await tryCatch(db.todos.getAllTodos());
 
   if (error) {
     return next(error);
@@ -45,7 +44,7 @@ const getTodoById: Controller = async (req, res, next) => {
     return next(new Error("Unable to parse TODO id."));
   }
 
-  const [todos, error] = await tryCatch(db.getTodo(todoId));
+  const [todos, error] = await tryCatch(db.todos.getTodo(todoId));
 
   if (error) {
     return next(error);
@@ -68,7 +67,9 @@ const updateTodoById: Controller = async (req, res, next) => {
 
   const { task, isDone } = req.body;
 
-  const [results, error] = await tryCatch(db.updateTodo(todoId, task, isDone));
+  const [results, error] = await tryCatch(
+    db.todos.updateTodo(todoId, task, isDone),
+  );
 
   if (error) {
     return next(error);
@@ -89,7 +90,7 @@ const deleteTodoById: Controller = async (req, res, next) => {
     return next(new Error("Unable to parse TODO id."));
   }
 
-  const [results, error] = await tryCatch(db.deleteTodo(todoId));
+  const [results, error] = await tryCatch(db.todos.deleteTodo(todoId));
 
   if (error) {
     return next(error);

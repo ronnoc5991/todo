@@ -1,5 +1,5 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2";
-import connection from "./connection.js";
+import connection from "../connection.js";
 
 async function createTodo(task: string) {
   const [results] = await connection.execute<ResultSetHeader>(

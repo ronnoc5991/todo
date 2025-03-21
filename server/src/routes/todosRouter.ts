@@ -6,7 +6,7 @@ import {
   getAllTodos,
   getTodoById,
   updateTodoById,
-} from "../controllers/todos.js";
+} from "../controllers/todosController.js";
 
 const todosRouter = express.Router();
 
