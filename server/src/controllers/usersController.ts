@@ -1,102 +1,109 @@
-import db from "../models/index.js";
+import { RequestHandler } from "express";
+import bodyParser from "body-parser";
 import bcrypt from "bcrypt";
 
+import db from "../models/index.js";
 import { tryCatch } from "../utils/tryCatch.js";
-import { Controller } from "./types.js";
 import HttpStatusCode from "../types/HttpStatusCode.js";
 
-// log in
 // log out
 // delete user
 // change password
+const jsonParser = bodyParser.json();
 
-const createNewUser: Controller = async (req, res, next) => {
-  const { email, password } = req.body;
+const createNewUser: Array<RequestHandler> = [
+  jsonParser,
+  async (req, res, next) => {
+    const { email, password } = req.body;
 
-  // see if the user exists already
-  const [existingUsers, existingUserError] = await tryCatch(
-    db.users.getUser(email),
-  );
-
-  if (existingUserError) {
-    return next(existingUserError);
-  }
-
-  if (existingUsers.length > 0) {
-    return next(
-      new Error(
-        "An account associated with this email address already exists.",
-      ),
+    // see if the user exists already
+    const [existingUsers, existingUserError] = await tryCatch(
+      db.users.getUser(email),
     );
-  }
 
-  // hash password in preparation for storage
-  const saltRounds = 10;
+    if (existingUserError) {
+      return next(existingUserError);
+    }
 
-  const [salt, saltGenerationError] = await tryCatch(
-    bcrypt.genSalt(saltRounds),
-  );
+    if (existingUsers.length > 0) {
+      return next(
+        new Error(
+          "An account associated with this email address already exists.",
+        ),
+      );
+    }
 
-  if (saltGenerationError) {
-    return next(new Error("Unable to generate a new user at this time."));
-  }
+    // hash password in preparation for storage
+    const saltRounds = 10;
 
-  const [hashedPassword, passwordHashError] = await tryCatch(
-    bcrypt.hash(password, salt),
-  );
+    const [salt, saltGenerationError] = await tryCatch(
+      bcrypt.genSalt(saltRounds),
+    );
 
-  if (passwordHashError) {
-    return next(new Error("Unable to generate a new user at this time."));
-  }
+    if (saltGenerationError) {
+      return next(new Error("Unable to generate a new user at this time."));
+    }
 
-  console.log(hashedPassword);
+    const [hashedPassword, passwordHashError] = await tryCatch(
+      bcrypt.hash(password, salt),
+    );
 
-  const [result, insertionError] = await tryCatch(
-    db.users.createUser(email, hashedPassword),
-  );
+    if (passwordHashError) {
+      return next(new Error("Unable to generate a new user at this time."));
+    }
 
-  if (insertionError) {
-    return next(insertionError);
-  }
+    console.log(hashedPassword);
 
-  if (result.affectedRows === 0) {
-    return next(new Error("Unable to create user."));
-  }
+    const [result, insertionError] = await tryCatch(
+      db.users.createUser(email, hashedPassword),
+    );
 
-  res.status(HttpStatusCode.CREATED).send();
-};
+    if (insertionError) {
+      return next(insertionError);
+    }
 
-const logIn: Controller = async (req, res, next) => {
-  const { email, password } = req.body;
+    if (result.affectedRows === 0) {
+      return next(new Error("Unable to create user."));
+    }
 
-  // see if the user exists already
-  const [existingUsers, existingUserError] = await tryCatch(
-    db.users.getUser(email),
-  );
+    res.status(HttpStatusCode.CREATED).send();
+  },
+];
 
-  if (existingUserError) {
-    return next(existingUserError);
-  }
+const logIn: Array<RequestHandler> = [
+  jsonParser,
+  async (req, res, next) => {
+    const { email, password } = req.body;
 
-  if (existingUsers.length === 0) {
-    return next(new Error("Log in failed. Email or password incorrect."));
-  }
+    // see if the user exists already
+    const [existingUsers, existingUserError] = await tryCatch(
+      db.users.getUser(email),
+    );
 
-  const [isMatch, error] = await tryCatch(
-    bcrypt.compare(password, existingUsers[0]?.password),
-  );
+    if (existingUserError) {
+      return next(existingUserError);
+    }
 
-  if (error) {
-    return next(new Error("Unable to log in at this time."));
-  }
+    if (existingUsers.length === 0) {
+      return next(new Error("Log in failed. Email or password incorrect."));
+    }
 
-  console.log("is Match: ", isMatch);
+    const [isMatch, error] = await tryCatch(
+      bcrypt.compare(password, existingUsers[0]?.password),
+    );
 
-  if (!isMatch) {
-    return next(new Error("Log in failed. Email or password incorrect."));
-  }
+    if (error) {
+      return next(new Error("Unable to log in at this time."));
+    }
 
-  res.status(HttpStatusCode.OK).send("You know the password!");
-};
+    console.log("is Match: ", isMatch);
+
+    if (!isMatch) {
+      return next(new Error("Log in failed. Email or password incorrect."));
+    }
+
+    res.status(HttpStatusCode.OK).send("You know the password!");
+  },
+];
 
 export default { createNewUser, logIn };

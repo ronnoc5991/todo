@@ -1,25 +1,17 @@
 import express from "express";
-import bodyParser from "body-parser";
-import {
-  createTodo,
-  deleteTodoById,
-  getAllTodos,
-  getTodoById,
-  updateTodoById,
-} from "../controllers/todosController.js";
+
+import todosController from "../controllers/todosController.js";
 
 const todosRouter = express.Router();
 
-const jsonParser = bodyParser.json();
+todosRouter.get("/", todosController.getAllTodos);
 
-todosRouter.get("/", getAllTodos);
+todosRouter.get("/:todoId", todosController.getTodoById);
 
-todosRouter.get("/:todoId", getTodoById);
+todosRouter.post("/", todosController.createTodo);
 
-todosRouter.post("/", jsonParser, createTodo);
+todosRouter.put("/:todoId", todosController.updateTodoById);
 
-todosRouter.put("/:todoId", jsonParser, updateTodoById);
-
-todosRouter.delete("/:todoId", deleteTodoById);
+todosRouter.delete("/:todoId", todosController.deleteTodoById);
 
 export default todosRouter;

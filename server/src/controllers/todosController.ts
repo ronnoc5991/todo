@@ -1,8 +1,11 @@
+import type { Request, RequestHandler } from "express";
+import bodyParser from "body-parser";
+
 import db from "../models/index.js";
-import type { Request } from "express";
 import { tryCatch } from "../utils/tryCatch.js";
-import { Controller } from "./types.js";
 import HttpStatusCode from "../types/HttpStatusCode.js";
+
+const jsonParser = bodyParser.json();
 
 const getTodoIdParam = (req: Request) => {
   if (!req.params.todoId) {
@@ -13,22 +16,25 @@ const getTodoIdParam = (req: Request) => {
   return Number.isInteger(todoId) ? todoId : null;
 };
 
-const createTodo: Controller = async (req, res, next) => {
-  const { task } = req.body;
-  const [result, error] = await tryCatch(db.todos.createTodo(task));
+const createTodo: Array<RequestHandler> = [
+  jsonParser,
+  async (req, res, next) => {
+    const { task } = req.body;
+    const [result, error] = await tryCatch(db.todos.createTodo(task));
 
-  if (error) {
-    return next(error);
-  }
+    if (error) {
+      return next(error);
+    }
 
-  if (result.affectedRows === 0) {
-    return next(new Error("Failed to create TODO"));
-  }
+    if (result.affectedRows === 0) {
+      return next(new Error("Failed to create TODO"));
+    }
 
-  res.status(HttpStatusCode.CREATED).send();
-};
+    res.status(HttpStatusCode.CREATED).send();
+  },
+];
 
-const getAllTodos: Controller = async (_, res, next) => {
+const getAllTodos: RequestHandler = async (_, res, next) => {
   const [allTodos, error] = await tryCatch(db.todos.getAllTodos());
 
   if (error) {
@@ -38,7 +44,7 @@ const getAllTodos: Controller = async (_, res, next) => {
   res.status(HttpStatusCode.OK).send(allTodos);
 };
 
-const getTodoById: Controller = async (req, res, next) => {
+const getTodoById: RequestHandler = async (req, res, next) => {
   const todoId = getTodoIdParam(req);
 
   if (!todoId) {
@@ -59,32 +65,35 @@ const getTodoById: Controller = async (req, res, next) => {
   res.status(HttpStatusCode.OK).send(todos[0]);
 };
 
-const updateTodoById: Controller = async (req, res, next) => {
-  const todoId = getTodoIdParam(req);
+const updateTodoById: Array<RequestHandler> = [
+  jsonParser,
+  async (req, res, next) => {
+    const todoId = getTodoIdParam(req);
 
-  if (!todoId) {
-    return next(new Error("Unable to parse TODO id."));
-  }
+    if (!todoId) {
+      return next(new Error("Unable to parse TODO id."));
+    }
 
-  const { task, isDone } = req.body;
+    const { task, isDone } = req.body;
 
-  const [results, error] = await tryCatch(
-    db.todos.updateTodo(todoId, task, isDone),
-  );
+    const [results, error] = await tryCatch(
+      db.todos.updateTodo(todoId, task, isDone),
+    );
 
-  if (error) {
-    return next(error);
-  }
+    if (error) {
+      return next(error);
+    }
 
-  if (results.affectedRows === 0) {
-    res.status(HttpStatusCode.NOT_FOUND).send();
-    return;
-  }
+    if (results.affectedRows === 0) {
+      res.status(HttpStatusCode.NOT_FOUND).send();
+      return;
+    }
 
-  res.status(HttpStatusCode.NO_CONTENT).send();
-};
+    res.status(HttpStatusCode.NO_CONTENT).send();
+  },
+];
 
-const deleteTodoById: Controller = async (req, res, next) => {
+const deleteTodoById: RequestHandler = async (req, res, next) => {
   const todoId = getTodoIdParam(req);
 
   if (!todoId) {
@@ -105,4 +114,10 @@ const deleteTodoById: Controller = async (req, res, next) => {
   res.status(HttpStatusCode.NO_CONTENT).send();
 };
 
-export { getAllTodos, getTodoById, createTodo, updateTodoById, deleteTodoById };
+export default {
+  getAllTodos,
+  getTodoById,
+  createTodo,
+  updateTodoById,
+  deleteTodoById,
+};
