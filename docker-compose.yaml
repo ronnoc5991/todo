@@ -1,25 +1,9 @@
 services:
-  server:
-    build: ./server
-    env_file: ./server/.env
-    command: npm run watch
-    ports:
-      - "3000:3000"
-    networks:
-      - backend
-    volumes:
-      - ./server:/app
-      - server_node_modules:/app/node_modules
-    depends_on:
-      database:
-        condition: service_healthy
-        restart: true
-
   database:
     image: mysql:9.2.0
     env_file: ./.db.env
     networks:
-      - backend
+      - server_database
     volumes:
       - database-data:/var/lib/mysql
     healthcheck:
@@ -37,8 +21,46 @@ services:
       interval: 10s
       timeout: 5s
 
+  server:
+    build: ./server
+    env_file: ./server/.env
+    command: npm run watch
+    networks:
+      - server_database
+      - client_server
+    volumes:
+      - ./server:/app
+      - server_node_modules:/app/node_modules
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:3000/health"]
+      interval: 5s
+      timeout: 2s
+      retries: 3
+    depends_on:
+      database:
+        condition: service_healthy
+        restart: true
+
+  client:
+    build: ./client
+    env_file: ./client/.env
+    command: npm run dev
+    ports:
+      - "5173:3000"
+    networks:
+      - client_server
+    volumes:
+      - ./client:/app
+      - client_node_modules:/app/node_modules
+    depends_on:
+      server:
+        condition: service_healthy
+        restart: true
+
 networks:
-  backend:
+  server_database:
+    attachable: true
+  client_server:
     attachable: true
 
 volumes:
@@ -49,3 +71,9 @@ volumes:
       o: bind
       device: ./server/node_modules
   database-data:
+  client_node_modules:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./client/node_modules
